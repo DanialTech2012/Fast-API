@@ -1,5 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import Response
+from pydantic import BaseModel, Field, field_validator
+
 
 app = FastAPI()
 
@@ -7,6 +9,46 @@ BALANCE = {
     "cash" : 1000,
     "cash2" : 15000,
 }
+
+class OperationRequest(BaseModel):
+    wallet : str = Field(..., max_length=127)
+    amount : int
+    description : str | None 
+
+    @field_validator('amount')
+    def amount_must_be_positive(cls, v : float) -> float:
+
+        if v <= 0:
+                raise ValueError("Amount must be positive")
+            
+        return v
+    
+    @field_validator("wallet")
+    def wallet_name_cannot_be_empty(cls, v :str) -> str:
+        if not v:
+            raise ValueError("Wallet name cannot be empty")
+        
+        return v
+
+# class OperationRequest(BaseModel):
+#     wallet : str = Field(..., max_length=127)
+#     amount : int
+
+#     @field_validator('amount')
+#     def amount_must_be_positive(cls, v : float) -> float:
+
+#         if v <= 0:
+#                 return ValueError("Amount must be positive")
+            
+#         return v
+    
+#     @field_validator("wallet")
+#     def wallet_name_cannot_be_empty(cls, v :str) -> str:
+#         if not v:
+#             raise ValueError("Wallet name cannot be empty")
+        
+#         return v
+
 
 @app.get("/health")
 def health_checker():
@@ -27,11 +69,53 @@ def get_balancce(wallet_name : str | None = None):
             
 @app.post("/wallet/{wallet_name}")
 def recieve_money(wallet_name : str, amount : int):
-    if wallet_name not in BALANCE:
-        BALANCE[wallet_name] = 0
-        return {"detail" : f"Wallet with name {wallet_name} is created"}
+    if wallet_name in BALANCE:
+        raise HTTPException(status_code=400,
+                           detail="wallet already exists")
     
-    BALANCE [wallet_name] += amount
-    return {"wallet_name" : {wallet_name},
-            "detail" : f"Your wallet {wallet_name} is top up with {amount}"}
+    BALANCE[wallet_name] = amount
+
+    return {"walleet_name" : wallet_name, "amount" : amount, "detail" : "Wallet is created"}
+
+@app.post("/operation/income")
+def income_operation(operation : OperationRequest):
+    if operation.wallet not in BALANCE:
+        raise HTTPException(status_code=400,
+                            detail=f"wallet is not in db")
+    
+    BALANCE[operation.wallet] += operation.amount
+    return{
+        "wallet_name" : operation.wallet,
+        "amount" : operation.amount,
+        "description" : operation.description,
+        "new_balance" : BALANCE[operation.wallet],
+        "message" : "Amount is expensed to balance"
+    }
+
+@app.post("/operation/expense")
+def expense_opration(operation : OperationRequest):
+    if operation.wallet not in BALANCE:
+        raise HTTPException(status_code=400,
+                            detail=f"wallet is not in db")
+    BALANCE[operation.wallet] -= operation.amount
+    return{
+        "wallet_name" : operation.wallet,
+        "amount" : operation.amount,
+        "description" : operation.description,
+        "new_balance" : BALANCE[operation.wallet],
+        "message" : "Amount is deducted to balance"
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
