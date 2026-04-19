@@ -8,10 +8,10 @@ from fastapi import APIRouter
 router = APIRouter()
 
 
-@router.get("/balance")
+@router.post("/balance")
 def get_balance(wallet : WalletRequest):
     return wallets_service.get_balance(wallet=wallet)
             
 @router.post("/wallet/{wallet_name}")
 def create_wallet(wallet: WalletRequest):
-    return wallets_service.create_wallet(wallet=wallet)
+    return wallets_service.create_wallet(create_request=wallet)
