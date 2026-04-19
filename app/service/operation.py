@@ -5,7 +5,6 @@ from app.repository.wallets import BALANCE
 from app.schemas import OperationRequest
 from app.repository import wallets as wallets_repository
 
-
 def income_operation(operation : OperationRequest):
     db = SessionLocal()
     try:
