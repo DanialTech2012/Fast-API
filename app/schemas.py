@@ -24,10 +24,7 @@ class OperationRequest(BaseModel):
 class WalletRequest(BaseModel):
     wallet : str = Field(..., max_length=127)
     amount : int
-<<<<<<< HEAD
     description : str | None 
-=======
->>>>>>> fe6557f29673651c6e4eec3f952b35f1bc4ce631
 
     @field_validator('amount')
     def amount_must_be_positive(cls, v : float) -> float:
@@ -42,8 +39,15 @@ class WalletRequest(BaseModel):
         if not v:
             raise ValueError("Wallet name cannot be empty")
         
-<<<<<<< HEAD
         return v
-=======
-        return v
->>>>>>> fe6557f29673651c6e4eec3f952b35f1bc4ce631
+
+
+
+
+class UserRequest(BaseModel):
+    login : str = Field(..., max_length=127)
+
+class UserResponse(UserRequest):
+    model_config = {"from_attributes" : True}
+
+    id : int
