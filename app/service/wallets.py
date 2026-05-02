@@ -2,7 +2,7 @@ from fastapi import HTTPException
 
 from app.database import SessionLocal
 from app.models import User
-from app.schemas import WalletRequest
+from app.schemas import WalletRequest, WalletResponse
 
 from app.repository import wallets as wallet_repository
 
@@ -13,7 +13,7 @@ from app.repository import wallets
 def get_balance(wallet: WalletRequest,db, current_user : User):
     if wallet.wallet is None:
         return Response(status_code=200,
-                        content=f"Your balance across all wallets is {sum([i.balance for i in wallet_repository.get_all_wallets(db, user_id=current_user.id)])}")
+                        content=f"Your balance across all wallets is {sum([i.balance for i in wallet_repository.get_all_wallets(db, user_id=current_user.id, currency=wallet.currency)])}")
 
     if not wallet_repository.is_wallet_exist(db, wallet.wallet, current_user.id):
         return HTTPException(status_code=400,
@@ -25,11 +25,15 @@ def get_balance(wallet: WalletRequest,db, current_user : User):
             "balance" : db_wallet.balance}
 
 
-def create_wallet(create_request: WalletRequest,db, current_user: User):
-    if wallet_repository.is_wallet_exist(db, create_request.wallet,  user_id=current_user.id):
-        raise HTTPException(status_code=400,
+def create_wallet(create_request: WalletRequest,db, current_user: User,):
+    db = SessionLocal()
+    try:
+        if wallet_repository.is_wallet_exist(db, create_request.wallet,  user_id=current_user.id):
+            raise HTTPException(status_code=400,
                         detail="wallet already exists")
     
-    wallet_repository.create_wallet(db, wallet_name=create_request.wallet, amount=create_request.amount,  user_id=current_user.id)
+        wallet = wallet_repository.create_wallet(db, wallet_name=create_request.wallet, amount=create_request.amount,  user_id=current_user.id, currency=create_request.currency)
 
-    return {"wallet_name" : create_request.wallet, "amount" : create_request.amount, "detail" : "Wallet is created"}
+        return WalletResponse.model_validate(wallet)
+    finally:
+        db.close()

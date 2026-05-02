@@ -6,6 +6,8 @@ from app.database import Base
 
 from sqlalchemy.orm import Mapped, mapped_column
 
+from app.emun import CurrencyEnum
+
 class User(Base):
     __tablename__ = "user"
 
@@ -20,3 +22,5 @@ class Wallet(Base):
     balance : Mapped[Decimal]
 
     user_id : Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
+
+    currency : Mapped[CurrencyEnum]

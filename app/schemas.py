@@ -1,4 +1,8 @@
+from decimal import Decimal
+
 from pydantic import BaseModel, Field, field_validator
+
+from app.emun import CurrencyEnum
 
 
 class OperationRequest(BaseModel):
@@ -24,7 +28,7 @@ class OperationRequest(BaseModel):
 class WalletRequest(BaseModel):
     wallet : str = Field(..., max_length=127)
     amount : int
-    description : str | None 
+    currency : CurrencyEnum = CurrencyEnum.TENGE
 
     @field_validator('amount')
     def amount_must_be_positive(cls, v : float) -> float:
@@ -49,5 +53,13 @@ class UserRequest(BaseModel):
 
 class UserResponse(UserRequest):
     model_config = {"from_attributes" : True}
+    id : int
+
+class WalletResponse(BaseModel):
+    model_config = {"from_attributes" : True}
 
     id : int
+    name : str
+    balance : Decimal
+    currency : CurrencyEnum
+        

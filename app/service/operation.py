@@ -21,7 +21,7 @@ def income_operation(operation : OperationRequest,db, current_user : User):
         "message" : "Amount is expensed to balance"
     }
 
-def expense_opration(operation : OperationRequest,db, current_user : User):
+def expense_operation(operation : OperationRequest,db, current_user : User):
     if not wallets_repository.is_wallet_exist(db, wallet_name=operation.wallet, user_id=current_user.id):
         raise HTTPException(status_code=400,
                             detail=f"wallet is not in db")

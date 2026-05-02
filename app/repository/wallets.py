@@ -1,4 +1,5 @@
 from app.database import SessionLocal
+from app.emun import CurrencyEnum
 from app.models import Wallet
 
 
@@ -18,8 +19,8 @@ def get_wallet_by_name(db, wallet_name, user_id : int):
 def get_all_wallets(db, user_id : int):
         return db.query(Wallet).filter(Wallet.user_id == user_id).all()
 
-def create_wallet(db, wallet_name, amount, user_id : int):
-        wallet = Wallet(name=wallet_name, balance=amount, user_id=user_id)
+def create_wallet(db, wallet_name, amount, user_id : int, currency : CurrencyEnum):
+        wallet = Wallet(name=wallet_name, balance=amount, user_id=user_id, currency=currency)
         db.add(wallet)
         db.commit()
         db.refresh(wallet)
