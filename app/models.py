@@ -2,6 +2,8 @@ from decimal import Decimal
 
 from sqlalchemy import ForeignKey
 
+from datetime import datetime
+
 from app.database import Base
 
 from sqlalchemy.orm import Mapped, mapped_column
@@ -24,3 +26,15 @@ class Wallet(Base):
     user_id : Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
 
     currency : Mapped[CurrencyEnum]
+
+
+class Operation(Base):
+    __tablename__ = "operation"
+
+    id : Mapped[int] = mapped_column(primary_key=True)
+    Wallet_id : Mapped[int] = mapped_column(ForeignKey("wallet.id"), nullable=False)
+    type : Mapped[str]
+    currency : Mapped[CurrencyEnum]
+    amount : Mapped[str | None] = mapped_column(default=None)
+    subcategoty : Mapped[str | None] = mapped_column(default=None)
+    created_at : Mapped[datetime] = mapped_column(default= lambda: datetime.now())

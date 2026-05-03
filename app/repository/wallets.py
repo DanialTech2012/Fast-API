@@ -11,9 +11,13 @@ BALANCE = {
 def is_wallet_exist(db, wallet_name, user_id : int):
         return db.query(Wallet).filter(wallet_name == wallet_name, Wallet.user_id == user_id).first() is not None
      
+
+def get_wallet_by_id(db, wallet_id, user_id : int):
+        wallet = db.query(Wallet).filter(Wallet.id == wallet_id, Wallet.user_id == user_id).first()
+        return wallet
     
 def get_wallet_by_name(db, wallet_name, user_id : int):
-        wallet = db.query(Wallet).filter(wallet_name == wallet_name, Wallet.user_id == user_id).first()
+        wallet = db.query(Wallet).filter(Wallet.name == wallet_name, Wallet.user_id == user_id).first()
         return wallet
 
 def get_all_wallets(db, user_id : int):
